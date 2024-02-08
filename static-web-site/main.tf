@@ -21,6 +21,16 @@ resource "aws_s3_bucket" "this" {
   }
 }
 
+
+resource "aws_s3_bucket_versioning" "this" {
+  bucket = aws_s3_bucket.this.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+
 resource "aws_s3_bucket_object" "this" {
   bucket       = aws_s3_bucket.this.id
   key          = "index.html"
@@ -62,4 +72,3 @@ resource "aws_s3_bucket_policy" "this" {
     ]
   })
 }
-
