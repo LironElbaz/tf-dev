@@ -63,3 +63,42 @@ resource "aws_s3_bucket_policy" "this" {
   })
 }
 
+
+resource "aws_s3_bucket" "that" {
+  bucket = "${var.bucket_name}-v1"
+  acl    = "public-read"
+
+  website {
+    index_document = "index.html"
+    error_document = "index.html"
+  }
+}
+
+resource "aws_s3_bucket_object" "that" {
+  bucket       = aws_s3_bucket.that.id
+  key          = "index.html"
+  source       = var.index_path
+  content_type = "text/html"
+
+  etag = filemd5(var.index_path)
+}
+
+resource "aws_s3_bucket_policy" "that" {
+  bucket = aws_s3_bucket.that.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource = [
+          aws_s3_bucket.that.arn,
+          "${aws_s3_bucket.that.arn}/*"
+        ]
+      },
+    ]
+  })
+}
